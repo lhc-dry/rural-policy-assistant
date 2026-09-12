@@ -16,6 +16,7 @@
 复制 `.env.example` 后配置：`DATABASE_URL`、`REDIS_URL`、`FILE_STORAGE_DIR`、`SESSION_SECRET`、管理员账号，以及 `EMBEDDINGS_BASE_URL`、`EMBEDDINGS_MODEL`、`LLM_BASE_URL`、`LLM_MODEL` 和对应密钥。未配置真实模型时，接口会返回配置错误，不会生成伪造向量或虚假引用。
 
 PDF 是首版唯一允许上传和解析的格式；扫描 PDF 若无法提取文字会进入“处理失败”。系统不提供跨设备数据同步、生产级授权或真实模型服务，部署时应由后端环境变量接入企业模型网关。
+<img width="552" height="262" alt="image" src="https://github.com/user-attachments/assets/c230c64f-435c-47da-b76e-5b2978e444b5" />
 
 ## 校验命令
 
