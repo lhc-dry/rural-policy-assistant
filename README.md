@@ -1,28 +1,78 @@
-# 乡村助农政策知识库
+## 📖 项目简介
 
-前后端分离的政策问答系统：React 18 + TypeScript + Vite 负责页面交互，Fastify + Prisma + PostgreSQL 负责业务数据、文件、会话、问答统计和检索。
+面向乡村助农政策咨询场景，基于 RAG 检索增强生成技术搭建政策知识库系统，分为**访客对话前端**和**运维后台管理系统**两大模块。
+系统依托大模型 + 知识库实现政策文档检索、多轮对话、流式答案输出；后台支持 PDF 政策文档管理、异步文档解析、问答数据统计、公告维护与权限管控，帮助基层用户快速理解涉农政策，降低政策信息获取门槛。
 
-## 主要功能
+## 🛠️ 技术栈
 
-- 访客免登录进入政策服务台，按板块连续对话，匿名 Cookie 绑定服务端会话。
-- 消息从服务端加载并持久化，支持虚拟列表、动态高度、流式输出、中断、重试、反馈和 PDF 引用预览。
-- 管理员可维护板块、PDF 文件、公告和统计数据。文件上传、替换、移动、删除和失败重试都通过 HTTP 接口完成。
-- 管理端只显示“处理中”“上传完成”“处理失败”三种业务状态；访客端只获取“上传完成”的 PDF。
-- 后端处理进程负责 PDF 按页提取、分块、关键词召回、Embedding 写入 pgvector，以及版本校验和过期结果丢弃。
-- 检索先按板块和勾选文件过滤，再进行关键词与向量双路召回、RRF 融合、规则精排和同文档去重，最多向回答服务提供三个片段。
+### 访客对话端
 
-## 环境变量
+`React18` + `TypeScript` + `Vite` + `react-window` + `Fetch-SSE` + `LocalStorage`
 
-复制 `.env.example` 后配置：`DATABASE_URL`、`REDIS_URL`、`FILE_STORAGE_DIR`、`SESSION_SECRET`、管理员账号，以及 `EMBEDDINGS_BASE_URL`、`EMBEDDINGS_MODEL`、`LLM_BASE_URL`、`LLM_MODEL` 和对应密钥。未配置真实模型时，接口会返回配置错误，不会生成伪造向量或虚假引用。
+### 后台管理系统
 
-PDF 是首版唯一允许上传和解析的格式；扫描 PDF 若无法提取文字会进入“处理失败”。系统不提供跨设备数据同步、生产级授权或真实模型服务，部署时应由后端环境变量接入企业模型网关。
-<img width="552" height="262" alt="image" src="https://github.com/user-attachments/assets/c230c64f-435c-47da-b76e-5b2978e444b5" />
+`React18` + `TypeScript` + `Vite` + `Ant Design` + `Axios` + `React Router` + `ECharts`
 
-## 校验命令
+## ✨ 功能亮点
 
-```bash
-npm run server:typecheck
-npm run build
-npm run lint
-npm test
+### 访客对话端
+
+- ✅ RAG 多轮对话：对话上下文记忆，理解连续政策咨询问题
+- ✅ SSE 流式输出：逐 Token 返回大模型回答，支持回答中断、消息列表自动滚动跟随
+- ✅ 虚拟列表优化：长对话场景下使用`react-window`渲染，减少 DOM 节点，控制内存开销
+- ✅ 组件懒加载：`React.lazy + Suspense` + Vite 分包，优化首屏加载速度
+- ✅ 多模态输入：文本提问、语音输入，消息状态统一管理
+
+> <img width="1907" height="1036" alt="image" src="https://github.com/user-attachments/assets/f7b96e59-a88a-4d86-80b9-2dc93e57c265" />
+<img width="1906" height="1030" alt="image" src="https://github.com/user-attachments/assets/da0f30ba-c414-4136-a4e7-2735f00c550b" />
+
+
+
+### 后台管理系统
+
+- ✅ 权限管控：路由守卫 + Session + HttpOnly Cookie，实现登录鉴权
+- ✅ PDF 文档管理：政策文档上传、删除、查看，对接后端异步解析队列
+- ✅ 异步任务看板：文档处理中 / 成功 / 失败状态展示，失败文档支持一键重解析
+- ✅ 数据可视化：ECharts 实现问答统计、高频问题排行、词云，自动适配窗口，防止内存泄漏
+- ✅ 内容管理：政策分类维护、公告草稿保存、发布 / 下架管理
+
+> 
+> <img width="1905" height="1028" alt="image" src="https://github.com/user-attachments/assets/a65748de-6a93-41ba-81a9-839522bdeecd" />
+
+
+## 🚀 本地启动
+
+> 
+> 前提：安装 Node.js (>=18)
+
 ```
+# 安装依赖
+npm install
+
+# 本地开发启动
+npm run dev
+
+# 项目打包构建
+npm run build
+```
+
+## 📁 目录简要说明
+
+```
+├── src/                 # 源码目录
+│   ├── api/             # 请求封装，SSE流式接口
+│   ├── components/      # 公共组件
+│   ├── pages/           # 页面路由（对话页、登录页、后台管理页面）
+│   ├── stores/          # 状态管理
+│   └── utils/           # 工具函数
+├── public/              # 静态资源
+├── server/              # 后端相关定义、类型、docker配置
+├── .gitignore
+├── package.json
+└── vite.config.ts
+```
+
+## 📌 项目说明
+
+本项目为**校级大学生创新创业训练计划项目**前端工程，配套后端实现文档向量入库、混合检索、大模型调用、异步任务队列等 RAG 核心能力。前端负责交互渲染、流式通信、可视化展示与系统权限管理
+
