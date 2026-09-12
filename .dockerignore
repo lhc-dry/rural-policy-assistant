@@ -1,0 +1,7 @@
+node_modules
+dist
+.git
+.npm-cache
+test-results
+*.tsbuildinfo
+server/data

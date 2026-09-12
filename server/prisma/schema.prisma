@@ -1,0 +1,143 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum IndexStatus {
+  queued
+  extracting
+  bm25
+  embedding
+  ready
+  failed
+}
+enum Role {
+  user
+  assistant
+}
+enum FeedbackValue {
+  useful
+  useless
+}
+
+model Admin {
+  id String @id @default(cuid())
+  username String @unique
+  passwordHash String
+  createdAt DateTime @default(now())
+  sessions Session[]
+}
+model Session {
+  id String @id
+  adminId String?
+  visitorId String?
+  expiresAt DateTime
+  admin Admin? @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  @@index([visitorId])
+}
+model Category {
+  id String @id
+  name String
+  description String
+  icon String
+  createdAt DateTime @default(now())
+  documents Document[]
+}
+model Document {
+  id String @id
+  categoryId String
+  fileName String
+  storageKey String
+  fileSize Int
+  mimeType String
+  version Int @default(1)
+  indexStatus IndexStatus @default(queued)
+  processingError String?
+  deletedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  category Category @relation(fields: [categoryId], references: [id])
+  versions DocumentVersion[]
+  chunks DocumentChunk[]
+  @@index([categoryId, indexStatus, deletedAt])
+}
+model DocumentVersion {
+  id String @id @default(cuid())
+  documentId String
+  version Int
+  storageKey String
+  indexStatus IndexStatus @default(queued)
+  processingError String?
+  createdAt DateTime @default(now())
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  chunks DocumentChunk[]
+  @@unique([documentId, version])
+}
+model DocumentChunk {
+  id String @id
+  documentId String
+  documentVersionId String
+  categoryId String
+  text String
+  pageNumber Int
+  chunkIndex Int
+  embedding Unsupported("vector")?
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  version DocumentVersion @relation(fields: [documentVersionId], references: [id], onDelete: Cascade)
+  @@index([categoryId, documentVersionId])
+}
+model Announcement {
+  id String @id @default(cuid())
+  title String
+  content String
+  categoryId String?
+  isPublished Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model Conversation {
+  id String @id @default(cuid())
+  visitorId String
+  categoryId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  messages Message[]
+  @@unique([visitorId, categoryId])
+}
+model Message {
+  id String @id @default(cuid())
+  conversationId String
+  role Role
+  content String
+  status String @default("success")
+  citations Json?
+  requestId String? @unique
+  createdAt DateTime @default(now())
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  feedback Feedback?
+}
+model Feedback {
+  id String @id @default(cuid())
+  messageId String @unique
+  value FeedbackValue
+  question String
+  answer String
+  createdAt DateTime @default(now())
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+}
+model QuestionStat {
+  id String @id @default(cuid())
+  normalizedQuestion String
+  question String
+  categoryId String
+  count Int @default(0)
+  feedbackCount Int @default(0)
+  uselessCount Int @default(0)
+  updatedAt DateTime @updatedAt
+  @@unique([normalizedQuestion, categoryId])
+}
