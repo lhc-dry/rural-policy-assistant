@@ -1,19 +1,6 @@
 # 乡村助农政策知识库
 
-前后端分离的政策问答系统：React 18 + TypeScript + Vite 负责页面交互，Fastify + Prisma + PostgreSQL 负责业务数据、文件、会话、问答统计和检索。访客只会看到已经完成解析的 PDF，后台处理过程不会出现在访客界面。
-
-## 本地运行
-
-```bash
-npm install --cache .npm-cache --prefer-offline
-npm run db:generate
-npm run server:dev
-npm run dev
-```
-
-API 默认运行在 `http://127.0.0.1:4000`，Vite 默认运行在 `http://127.0.0.1:5173`，开发服务器会把 `/api` 转发到 API。管理员账号由 `ADMIN_USERNAME`、`ADMIN_PASSWORD` 初始化，默认值为 `admin / 123456`。
-
-生产环境可使用 `docker compose up --build` 启动 PostgreSQL、Redis、API 和后台处理进程；首次部署后执行 `npm run db:migrate`。
+前后端分离的政策问答系统：React 18 + TypeScript + Vite 负责页面交互，Fastify + Prisma + PostgreSQL 负责业务数据、文件、会话、问答统计和检索。
 
 ## 主要功能
 
